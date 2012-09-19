@@ -9,6 +9,8 @@
 // This a simple and ad-hoc STUN client (UDP), partially compliant with RFC5389
 // it gets the public(reflective) IP and Port of a UDP socket
 //
+// Documentation http://tools.ietf.org/html/rfc5389#page-10
+//
 
 #import <Foundation/Foundation.h>
 #import "GCDAsyncUdpSocket.h"
