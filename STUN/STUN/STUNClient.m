@@ -72,6 +72,24 @@
     return theData;
 }
 
+- (NSString *)extractIP:(NSData *)rawIP{
+    unsigned char *n = (unsigned char *)[rawIP bytes];
+    int value1 = n[0];
+    int value2 = n[1];
+    int value3 = n[2];
+    int value4 = n[3];
+    
+    return [NSString stringWithFormat:@"%d:%d:%d:%d", value1, value2, value3, value4];
+}
+
+- (NSString *)extractPort:(NSData *)rawPort{
+    unsigned port = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:[[rawPort description] substringWithRange:NSMakeRange(1, 4)]];
+    [scanner scanHexInt:&port];
+    
+    return [NSString stringWithFormat:@"%d", port];
+}
+
 
 #pragma mark -
 #pragma mark GCDAsyncUdpSocketDelegate
@@ -127,9 +145,9 @@ withFilterContext:(id)filterContext{
         NSData *mappedAddressData = [data subdataWithRange:NSMakeRange(i, 2)];
         
         if([mappedAddressData isEqualToData:[NSData dataWithBytes:"\x00\x01" length:2]]){ // MAPPED-ADDRESS
-            int maddrStartPos=i + 2 + 2 + 1 + 1;
+            int maddrStartPos = i + 2 + 2 + 1 + 1;
             mport = [data subdataWithRange:NSMakeRange(maddrStartPos, 2)];
-            maddr = [data subdataWithRange:NSMakeRange(maddrStartPos+2, 2)];
+            maddr = [data subdataWithRange:NSMakeRange(maddrStartPos+2, 4)];
         }
         if([mappedAddressData isEqualToData:[NSData dataWithBytes:"\x80\x20" length:2]] ||
            [mappedAddressData isEqualToData:[NSData dataWithBytes:"\x00\x20" length:2]]){
@@ -138,7 +156,7 @@ withFilterContext:(id)filterContext{
             // as the XOR-MAPPED-ADDRESS Attribute type number instead of 0x0020 specified in RFC5389
             int xmaddrStartPos = i + 2 + 2 + 1 + 1;
             xmport=[data subdataWithRange:NSMakeRange(xmaddrStartPos, 2)];
-            xmaddr=[data subdataWithRange:NSMakeRange(xmaddrStartPos+2, 2)];
+            xmaddr=[data subdataWithRange:NSMakeRange(xmaddrStartPos+2, 4)];
         }
         
         i += 2;
@@ -149,9 +167,10 @@ withFilterContext:(id)filterContext{
         
         if(attribValueLength % 4 == 0){
             attribValueLength += 4 - (attribValueLength % 4); // adds stun attribute value padding
-            i += 2;
-            i += attribValueLength;
         }
+        
+        i += 2;
+        i += attribValueLength;
     }
     
     
@@ -165,6 +184,21 @@ withFilterContext:(id)filterContext{
     
     NSString *ip = nil;
     NSString *port = nil;
+    
+    if(maddr != nil){
+        ip = [self extractIP:maddr];
+        port = [self extractPort:mport];
+    }else{
+        STUNLog(@"STUN query failed.");
+        return;
+    }
+    
+    STUNLog(@"\n");
+    STUNLog(@"=======STUN========");
+    STUNLog(@"STUN IP: %@", ip);
+    STUNLog(@"STUN Port: %@", port);
+    STUNLog(@"===================");
+    STUNLog(@"\n");
     
     // notify delegate
     if([delegate respondsToSelector:@selector(didReceivePublicIPandPort:)]){
