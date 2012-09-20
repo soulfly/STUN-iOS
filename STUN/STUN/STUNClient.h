@@ -2,8 +2,8 @@
 //  STUNClient.h
 //  STUN
 //
-//  Created by IgorKh on 9/19/12.
-//  Copyright (c) 2012 quickblox. All rights reserved.
+//  Created by Igor Khomenko on 9/19/12.
+//  Copyright (c) 2012 Quickblox. All rights reserved. Check our BAAS quickblox.com
 //
 //
 // This a simple and ad-hoc STUN client (UDP), partially compliant with RFC5389
@@ -11,6 +11,9 @@
 //
 // Documentation http://tools.ietf.org/html/rfc5389#page-10
 //
+// From quickblox.com team with love!
+//
+
 
 #import <Foundation/Foundation.h>
 #import "GCDAsyncUdpSocket.h"
@@ -33,7 +36,7 @@
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
 
-#define log 1
+#define log 0
 #define STUNLog(...) if (log) NSLog(__VA_ARGS__)
 
 

@@ -2,8 +2,8 @@
 //  AppDelegate.h
 //  STUN
 //
-//  Created by IgorKh on 9/19/12.
-//  Copyright (c) 2012 quickblox. All rights reserved.
+//  Created by Igor Khomenko on 9/19/12.
+//  Copyright (c) 2012 Quickblox. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

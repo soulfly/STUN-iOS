@@ -2,8 +2,8 @@
 //  STUNClient.m
 //  STUN
 //
-//  Created by IgorKh on 9/19/12.
-//  Copyright (c) 2012 quickblox. All rights reserved.
+//  Created by Igor Khomenko on 9/19/12.
+//  Copyright (c) 2012 Quickblox. All rights reserved.
 //
 
 #import "STUNClient.h"
@@ -180,6 +180,14 @@ withFilterContext:(id)filterContext{
         STUNLog(@"mport: %@", mport);
     }else{
         STUNLog(@"STUN No MAPPED-ADDRESS found.");
+    }
+    
+    if(xmaddr != nil){
+        // Not implemented yet
+        // You can self implement this feature using original documenatation http://tools.ietf.org/html/rfc5389#page-33
+        
+    }else{
+        STUNLog(@"STUN No XOR-MAPPED-ADDRESS found.");
     }
     
     
