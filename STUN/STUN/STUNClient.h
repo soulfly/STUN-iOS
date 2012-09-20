@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 #import "GCDAsyncUdpSocket.h"
 
+
 // STUN default port
 #define SNUTPort 3478
 
@@ -26,12 +27,6 @@
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
 #define SNUTServer @"stun.ekiga.net" 
-
-// For explanations about the following variables see the section 7.2.1 of RFC5389
-#define rc 7    // maximum number of the requests to send
-#define rm 16   // used for calculating the last receive timeout
-#define rto 0.5 // Retransmission TimeOut
-
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
