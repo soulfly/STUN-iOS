@@ -160,12 +160,13 @@ withFilterContext:(id)filterContext{
         }
         
         i += 2;
-        
+
         unsigned attribValueLength = 0;
-        NSScanner *scanner = [NSScanner scannerWithString:[[[data subdataWithRange:NSMakeRange(i, 2)] description] substringWithRange:NSMakeRange(1, 4)]];
+        NSScanner *scanner = [NSScanner scannerWithString:[[[data subdataWithRange:NSMakeRange(i, 2)] description]
+                                                           substringWithRange:NSMakeRange(1, 4)]];
         [scanner scanHexInt:&attribValueLength];
-        
-        if(attribValueLength % 4 == 0){
+
+        if(attribValueLength % 4 > 0){
             attribValueLength += 4 - (attribValueLength % 4); // adds stun attribute value padding
         }
         
