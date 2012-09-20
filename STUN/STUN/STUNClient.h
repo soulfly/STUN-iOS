@@ -33,11 +33,19 @@
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
 
+#define log 1
+#define STUNLog(...) if (log) NSLog(__VA_ARGS__)
+
 
 @protocol STUNClientDelegate;
 @interface STUNClient : NSObject <GCDAsyncUdpSocketDelegate>{
     GCDAsyncUdpSocket *udpSocket;
     id<STUNClientDelegate>delegate;
+    
+    NSData *msgType;
+    NSData *bodyLength;
+    NSData *magicCookie;
+    NSData *transactionId;
 }
 
 - (void)requestPublicIPandPortWithDelegate:(id<STUNClientDelegate>)delegate;

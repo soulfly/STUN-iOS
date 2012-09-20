@@ -10,6 +10,7 @@
 #import "STUNClient.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, STUNClientDelegate>{
+    STUNClient *stunClient;
 }
 
 @end

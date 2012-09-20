@@ -18,7 +18,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // request public IP and Port through STUN 
-    STUNClient *stunClient = [[STUNClient alloc] init];
+    stunClient = [[STUNClient alloc] init];
     [stunClient requestPublicIPandPortWithDelegate:self];
     
     return YES;
@@ -57,6 +57,8 @@
 
 -(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort{
     NSLog(@"Public IP=%@, public Port=%@", [ipAndPort objectForKey:publicIPKey], [ipAndPort objectForKey:publicPortKey]);
+    
+    [stunClient release];
 }
 
 @end
