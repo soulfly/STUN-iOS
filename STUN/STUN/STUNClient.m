@@ -20,28 +20,32 @@
     [super dealloc];
 }
 
-- (void)requestPublicIPandPortWithDelegate:(id<STUNClientDelegate>)_delegate{
-    // create socket and bind it
-    udpSocket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+- (void)requestPublicIPandPortWithUDPSocket:(GCDAsyncUdpSocket *)socket delegate:(id<STUNClientDelegate>)_delegate{
+    
+    [socket setDelegate:self];
+    
+    // bind socket
     NSError *error = nil;
-    if (![udpSocket bindToPort:0 error:&error]) {
+    if (![socket bindToPort:0 error:&error]) {
         STUNLog(@"bindToPort error=%@", error);
         return;
     }
-    if (![udpSocket beginReceiving:&error]){
+    if (![socket beginReceiving:&error]){
         STUNLog(@"beginReceiving error=%@", error);
         return;
     }
     
+    // save socket & delegate
     delegate = _delegate;
+    udpSocket = socket;
     
     msgType = [[NSData dataWithBytes:"\x00\x01" length:2] retain]; // STUN binding request. A Binding request has class=0b00 (request) and
-                                                          // method=0b000000000001 (Binding)
+    // method=0b000000000001 (Binding)
     bodyLength = [[NSData dataWithBytes:"\x00\x00" length:2] retain]; // we have/need no attributes, so message body length is zero
     magicCookie = [[NSData dataWithBytes:"\x21\x12\xA4\x42" length:4] retain]; // The magic cookie field MUST contain the fixed value 0x2112A442 in
-                                                                      // network byte order.
+    // network byte order.
     transactionId = [[self createNRundomBytes:12] retain]; //  The transaction ID used to uniquely identify STUN transactions.
-
+    
     // create final request
     NSMutableData *stunRequest = [NSMutableData data];
     [stunRequest appendData:msgType];
@@ -53,7 +57,7 @@
     
     // Start request
     //
-    [udpSocket sendData:stunRequest toHost:SNUTServer port:SNUTPort withTimeout:-1 tag:1002];
+    [socket sendData:stunRequest toHost:SNUTServer port:SNUTPort withTimeout:-1 tag:1002];
 }
 
 
@@ -79,7 +83,7 @@
     int value3 = n[2];
     int value4 = n[3];
     
-    return [NSString stringWithFormat:@"%d:%d:%d:%d", value1, value2, value3, value4];
+    return [NSString stringWithFormat:@"%d.%d.%d.%d", value1, value2, value3, value4];
 }
 
 - (NSString *)extractPort:(NSData *)rawPort{
@@ -124,8 +128,8 @@ withFilterContext:(id)filterContext{
         STUNLog(@"STUN a non-success STUN response received. Please repeat request");
         return;
     }
-
-
+    
+    
     // get responss body length
     unsigned responseBodyLength = 0;
     NSScanner *scanner = [NSScanner scannerWithString:[[[data subdataWithRange:NSMakeRange(2, 4)] description] substringWithRange:NSMakeRange(1, 4)]];
@@ -141,7 +145,7 @@ withFilterContext:(id)filterContext{
     
     int i = 20; // current reading position in the response binary data
     while(i < responseBodyLength+20){ // proccessing the response
-    
+        
         NSData *mappedAddressData = [data subdataWithRange:NSMakeRange(i, 2)];
         
         if([mappedAddressData isEqualToData:[NSData dataWithBytes:"\x00\x01" length:2]]){ // MAPPED-ADDRESS
@@ -160,12 +164,12 @@ withFilterContext:(id)filterContext{
         }
         
         i += 2;
-
+        
         unsigned attribValueLength = 0;
         NSScanner *scanner = [NSScanner scannerWithString:[[[data subdataWithRange:NSMakeRange(i, 2)] description]
                                                            substringWithRange:NSMakeRange(1, 4)]];
         [scanner scanHexInt:&attribValueLength];
-
+        
         if(attribValueLength % 4 > 0){
             attribValueLength += 4 - (attribValueLength % 4); // adds stun attribute value padding
         }
@@ -212,6 +216,7 @@ withFilterContext:(id)filterContext{
     // notify delegate
     if([delegate respondsToSelector:@selector(didReceivePublicIPandPort:)]){
         NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:ip, publicIPKey, port, publicPortKey, nil];
+        [udpSocket setDelegate:delegate];
         [delegate didReceivePublicIPandPort:result];
     }
 }

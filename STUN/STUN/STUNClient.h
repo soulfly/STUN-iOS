@@ -26,7 +26,7 @@
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define SNUTServer @"stun.ekiga.net" 
+#define SNUTServer @"stun.ekiga.net"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
@@ -46,7 +46,7 @@
     NSData *transactionId;
 }
 
-- (void)requestPublicIPandPortWithDelegate:(id<STUNClientDelegate>)delegate;
+- (void)requestPublicIPandPortWithUDPSocket:(GCDAsyncUdpSocket *)socket delegate:(id<STUNClientDelegate>)delegate;
 
 @end
 

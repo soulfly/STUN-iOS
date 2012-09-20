@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "STUNClient.h"
+#import "GCDAsyncUdpSocket.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, STUNClientDelegate>{
     STUNClient *stunClient;
+    GCDAsyncUdpSocket *udpSocket;
 }
 
 @end

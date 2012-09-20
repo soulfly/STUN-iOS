@@ -17,9 +17,12 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // request public IP and Port through STUN 
+    // request public IP and Port through STUN
+    udpSocket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+    
+    
     stunClient = [[STUNClient alloc] init];
-    [stunClient requestPublicIPandPortWithDelegate:self];
+    [stunClient requestPublicIPandPortWithUDPSocket:udpSocket delegate:self];
     
     return YES;
 }
@@ -57,8 +60,6 @@
 
 -(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort{
     NSLog(@"Public IP=%@, public Port=%@", [ipAndPort objectForKey:publicIPKey], [ipAndPort objectForKey:publicPortKey]);
-    
-    [stunClient release];
 }
 
 @end
