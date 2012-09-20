@@ -27,6 +27,6 @@ Original specification: [http://tools.ietf.org/html/rfc5389](http://tools.ietf.o
 
 5. See in log:
 
-        2012-09-20 15:55:31.160 STUN[19255:f803] Public IP=82:117:233:108, public Port=39483
+        2012-09-20 15:55:31.160 STUN[19255:f803] Public IP=52:177:223:158, public Port=42483
 
 6. Injoit!
