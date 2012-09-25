@@ -8,6 +8,8 @@
 
 #import "STUNClient.h"
 #include <stdlib.h>
+#import <ifaddrs.h>
+#import <arpa/inet.h>
 
 @implementation STUNClient
 
@@ -210,6 +212,7 @@ withFilterContext:(id)filterContext{
     STUNLog(@"=======STUN========");
     STUNLog(@"STUN IP: %@", ip);
     STUNLog(@"STUN Port: %@", port);
+    STUNLog(@"STUN NAT type: %@", [sock localPort] == [port intValue] ? @"Not Symmetric" : @"Symmetric");
     STUNLog(@"===================");
     STUNLog(@"\n");
     

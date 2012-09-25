@@ -33,7 +33,3 @@ Original specification: [http://tools.ietf.org/html/rfc5389](http://tools.ietf.o
         2012-09-20 15:55:31.160 STUN[19255:f803] Public IP=52.177.223.158, public Port=42483
 
 6. Injoit!
-
-<h2>To-Do</h2>
-1. Add XOR-MAPPED-ADDRESS
-2. Determine NAT's type

@@ -31,7 +31,7 @@
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
 
-#define log 0
+#define log 1
 #define STUNLog(...) if (log) NSLog(__VA_ARGS__)
 
 
