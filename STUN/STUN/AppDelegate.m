@@ -58,8 +58,9 @@
 #pragma mark -
 #pragma mark STUNClientDelegate
 
--(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort{
-    NSLog(@"Public IP=%@, public Port=%@", [ipAndPort objectForKey:publicIPKey], [ipAndPort objectForKey:publicPortKey]);
+-(void)didReceivePublicIPandPort:(NSDictionary *) data{
+    NSLog(@"Public IP=%@, public Port=%@, NAT is Symmetric: %@", [data objectForKey:publicIPKey],
+          [data objectForKey:publicPortKey], [data objectForKey:isNATTypeSymmetric]);
 }
 
 @end

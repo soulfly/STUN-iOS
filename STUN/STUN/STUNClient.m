@@ -59,7 +59,7 @@
     
     // Start request
     //
-    [socket sendData:stunRequest toHost:SNUTServer port:SNUTPort withTimeout:-1 tag:1002];
+    [socket sendData:stunRequest toHost:STUNServer port:STUNPort withTimeout:-1 tag:1002];
 }
 
 
@@ -208,6 +208,8 @@ withFilterContext:(id)filterContext{
         return;
     }
     
+    NSNumber *isNATSymmetric = [NSNumber numberWithBool:[sock localPort] != [port intValue]];
+    
     STUNLog(@"\n");
     STUNLog(@"=======STUN========");
     STUNLog(@"STUN IP: %@", ip);
@@ -218,7 +220,7 @@ withFilterContext:(id)filterContext{
     
     // notify delegate
     if([delegate respondsToSelector:@selector(didReceivePublicIPandPort:)]){
-        NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:ip, publicIPKey, port, publicPortKey, nil];
+        NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:ip, publicIPKey, port, publicPortKey, isNATSymmetric, isNATTypeSymmetric, nil];
         [udpSocket setDelegate:delegate];
         [delegate didReceivePublicIPandPort:result];
     }

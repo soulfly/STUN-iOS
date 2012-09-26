@@ -20,16 +20,17 @@
 
 
 // STUN default port
-#define SNUTPort 3478
+#define STUNPort 3478
 
 // The following is a list of some public/free stun servers
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define SNUTServer @"stun.ekiga.net"
+#define STUNServer @"stun.ekiga.net"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
+#define isNATTypeSymmetric @"isNATTypeSymmetric"
 
 #define log 1
 #define STUNLog(...) if (log) NSLog(__VA_ARGS__)
@@ -51,5 +52,5 @@
 @end
 
 @protocol STUNClientDelegate <NSObject>
--(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort;
+-(void)didReceivePublicIPandPort:(NSDictionary *) data;
 @end
