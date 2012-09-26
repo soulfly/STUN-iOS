@@ -41,6 +41,12 @@
     delegate = _delegate;
     udpSocket = socket;
     
+    //
+    // All STUN messages MUST start with a 20-byte header followed by zero
+    // or more Attributes.  The STUN header contains a STUN message type,
+    // magic cookie, transaction ID, and message length.
+    //
+    //
     msgType = [[NSData dataWithBytes:"\x00\x01" length:2] retain]; // STUN binding request. A Binding request has class=0b00 (request) and
     // method=0b000000000001 (Binding)
     bodyLength = [[NSData dataWithBytes:"\x00\x00" length:2] retain]; // we have/need no attributes, so message body length is zero
@@ -145,7 +151,17 @@ withFilterContext:(id)filterContext{
     NSData *xmaddr = nil;  // xor mapped ip
     NSData *xmport = nil;  // xor mapped port
     
-    int i = 20; // current reading position in the response binary data
+    int i = 20; // current reading position in the response binary data.  At 20 byte starts STUN Attributes
+    //
+    // STUN Attributes
+    //
+    // After the STUN header are zero or more attributes.  Each attribute
+    // MUST be TLV encoded, with a 16-bit type, 16-bit length, and value.
+    // Each STUN attribute MUST end on a 32-bit boundary.  As mentioned
+    // above, all fields in an attribute are transmitted most significant
+    // bit first.
+    //
+    //
     while(i < responseBodyLength+20){ // proccessing the response
         
         NSData *mappedAddressData = [data subdataWithRange:NSMakeRange(i, 2)];
@@ -155,7 +171,7 @@ withFilterContext:(id)filterContext{
             mport = [data subdataWithRange:NSMakeRange(maddrStartPos, 2)];
             maddr = [data subdataWithRange:NSMakeRange(maddrStartPos+2, 4)];
         }
-        if([mappedAddressData isEqualToData:[NSData dataWithBytes:"\x80\x20" length:2]] ||
+        if([mappedAddressData isEqualToData:[NSData dataWithBytes:"\x80\x20" length:2]] || // XOR-MAPPED-ADDRESS
            [mappedAddressData isEqualToData:[NSData dataWithBytes:"\x00\x20" length:2]]){
             
             // apparently, all public stun servers tested use 0x8020 (in the Comprehension-optional range) -
