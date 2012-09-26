@@ -21,11 +21,11 @@ Original specification: [http://tools.ietf.org/html/rfc5389](http://tools.ietf.o
         STUNClient *stunClient = [[STUNClient alloc] init];
         [stunClient requestPublicIPandPortWithUDPSocket:udpSocket delegate:self];
 
-4. Catch result in delegate's method **-(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort**:
+4. Catch result in delegate's method **-(void)didReceivePublicIPandPort:(NSDictionary *) data**:
 
-        -(void)didReceivePublicIPandPort:(NSDictionary *) ipAndPort{
-            NSLog(@"Public IP=%@, public Port=%@", [ipAndPort objectForKey:publicIPKey], 
-                    [ipAndPort objectForKey:publicPortKey]);
+        -(void)didReceivePublicIPandPort:(NSDictionary *) data{
+            NSLog(@"Public IP=%@, public Port=%@, NAT is Symmetric: %@", [data objectForKey:publicIPKey],
+            [data objectForKey:publicPortKey], [data objectForKey:isNATTypeSymmetric]);
         }
 
 5. See in log:
