@@ -270,25 +270,19 @@ withFilterContext:(id)filterContext{
     }
     
     
-    if(maddr != nil){
-        STUNLog(@"MAPPED-ADDRESS: %@", maddr);
-        STUNLog(@"mport: %@", mport);
-    }else{
-        STUNLog(@"STUN No MAPPED-ADDRESS found.");
-    }
-    
-    if(xmaddr == nil){
-        STUNLog(@"STUN No XOR-MAPPED-ADDRESS found.");
-    }
-    
-    
     NSString *ip = nil;
     NSString *port = nil;
     
     if(maddr != nil){
         ip = [self extractIP:maddr];
         port = [self extractPort:mport];
+        
+        STUNLog(@"MAPPED-ADDRESS: %@", maddr);
+        STUNLog(@"mport: %@", mport);
+    }else{
+        STUNLog(@"STUN No MAPPED-ADDRESS found.");
     }
+    
     if(xmaddr != nil){
 
         // XOR address
@@ -296,14 +290,22 @@ withFilterContext:(id)filterContext{
         int magicCookieInt = [self parseIntFromHexData:magicCookie];
         //
         int32_t xoredAddr = CFSwapInt32HostToBig(magicCookieInt ^ xmaddrInt);
-        ip = [self extractIP:[NSData dataWithBytes:&xoredAddr length:4]];
+        NSData *xAddr = [NSData dataWithBytes:&xoredAddr length:4];
+        ip = [self extractIP:xAddr];
         
         // XOR port
         int xmportInt = [self parseIntFromHexData:xmport];
         int magicCookieHighBytesInt = [self parseIntFromHexData:[magicCookie subdataWithRange:NSMakeRange(0, 2)]];
         //
         int32_t xoredPort = CFSwapInt16HostToBig(magicCookieHighBytesInt ^ xmportInt);
-        port = [self extractPort:[NSData dataWithBytes:&xoredPort length:2]];
+        NSData *xPort = [NSData dataWithBytes:&xoredPort length:2];
+        port = [self extractPort:xPort];
+        
+        STUNLog(@"XOR-MAPPED-ADDRESS: %@", xAddr);
+        STUNLog(@"xmport: %@", xPort);
+        
+    }else{
+        STUNLog(@"STUN No XOR-MAPPED-ADDRESS found.");
     }
     
     NSNumber *isNATSymmetric = [NSNumber numberWithBool:[sock localPort] != [port intValue]];

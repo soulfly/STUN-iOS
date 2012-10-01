@@ -27,7 +27,7 @@
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define STUNServer @"stun.callwithus.com"
+#define STUNServer @"qbchat01.quickblox.com"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
