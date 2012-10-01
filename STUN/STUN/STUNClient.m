@@ -14,6 +14,9 @@
 @implementation STUNClient
 
 - (void)dealloc{
+    delegate = nil;
+    udpSocket = nil;
+    
     [msgTypeBindingRequest release];
     [bodyLength release];
     [magicCookie release];
@@ -97,6 +100,7 @@
 - (void)sendIndicationMessage{
    
     // network byte order.
+    [transactionIdIndicationMessage release];
     transactionIdIndicationMessage= [[self createNRundomBytes:12] retain]; //  The transaction ID used to uniquely identify STUN transactions.
     
     // create final request
