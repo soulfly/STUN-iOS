@@ -10,6 +10,7 @@
 // it gets the public(reflective) IP and Port of a UDP socket
 //
 // Documentation http://tools.ietf.org/html/rfc5389#page-10
+// Russian tutorial http://svitter.ru/?p=442
 //
 // From quickblox.com team with love!
 //
@@ -26,7 +27,7 @@
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define STUNServer @"stun.ekiga.net"
+#define STUNServer @"stun.callwithus.com"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
@@ -41,13 +42,22 @@
     GCDAsyncUdpSocket *udpSocket;
     id<STUNClientDelegate>delegate;
     
-    NSData *msgType;
+    // binding request
+    NSData *msgTypeBindingRequest;
     NSData *bodyLength;
     NSData *magicCookie;
-    NSData *transactionId;
+    NSData *transactionIdBindingRequest;
+    
+    // indication message
+    NSData *msgTypeIndicationMessage;
+    NSData *transactionIdIndicationMessage;
+    
+    NSTimer *retentionTimer;
 }
 
 - (void)requestPublicIPandPortWithUDPSocket:(GCDAsyncUdpSocket *)socket delegate:(id<STUNClientDelegate>)delegate;
+- (void)startSendIndicationMessage;
+- (void)stopSendIndicationMessage;
 
 @end
 

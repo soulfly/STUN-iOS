@@ -245,11 +245,13 @@
 		FAC35C89160A119D006BDE6E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Conark Intelmed";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "STUN/STUN-Prefix.pch";
 				INFOPLIST_FILE = "STUN/STUN-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "2C29D777-562C-4839-91D0-FE3D9BE3C28B";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

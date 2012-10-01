@@ -14,10 +14,13 @@
 @implementation STUNClient
 
 - (void)dealloc{
-    [msgType release];
+    [msgTypeBindingRequest release];
     [bodyLength release];
     [magicCookie release];
-    [transactionId release];
+    [transactionIdBindingRequest release];
+    
+    [msgTypeIndicationMessage release];
+    [transactionIdIndicationMessage release];
     
     [super dealloc];
 }
@@ -41,31 +44,84 @@
     delegate = _delegate;
     udpSocket = socket;
     
+    // Create Binding request
     //
     // All STUN messages MUST start with a 20-byte header followed by zero
     // or more Attributes.  The STUN header contains a STUN message type,
     // magic cookie, transaction ID, and message length.
     //
     //
-    msgType = [[NSData dataWithBytes:"\x00\x01" length:2] retain]; // STUN binding request. A Binding request has class=0b00 (request) and
+    msgTypeBindingRequest = [[NSData dataWithBytes:"\x00\x01" length:2] retain]; // STUN binding request. A Binding request has class=0b00 (request) and
     // method=0b000000000001 (Binding)
     bodyLength = [[NSData dataWithBytes:"\x00\x00" length:2] retain]; // we have/need no attributes, so message body length is zero
     magicCookie = [[NSData dataWithBytes:"\x21\x12\xA4\x42" length:4] retain]; // The magic cookie field MUST contain the fixed value 0x2112A442 in
     // network byte order.
-    transactionId = [[self createNRundomBytes:12] retain]; //  The transaction ID used to uniquely identify STUN transactions.
+    transactionIdBindingRequest = [[self createNRundomBytes:12] retain]; //  The transaction ID used to uniquely identify STUN transactions.
     
     // create final request
     NSMutableData *stunRequest = [NSMutableData data];
-    [stunRequest appendData:msgType];
+    [stunRequest appendData:msgTypeBindingRequest];
     [stunRequest appendData:bodyLength];
     [stunRequest appendData:magicCookie];
-    [stunRequest appendData:transactionId];
+    [stunRequest appendData:transactionIdBindingRequest];
     
-    STUNLog(@"STUN request=%@", stunRequest);
+    STUNLog(@"STUN Binding Request=%@", stunRequest);
     
-    // Start request
+    // Start binding request
     //
     [socket sendData:stunRequest toHost:STUNServer port:STUNPort withTimeout:-1 tag:1002];
+}
+
+- (void)startSendIndicationMessage{
+    if(udpSocket == nil){
+        return;
+    }
+    
+    // Create Indication message
+    //
+    // All STUN messages MUST start with a 20-byte header followed by zero
+    // or more Attributes.  The STUN header contains a STUN message type,
+    // magic cookie, transaction ID, and message length.
+    //
+    //
+    msgTypeIndicationMessage = [[NSData dataWithBytes:"\x00\x10" length:2] retain]; // STUN indication message.
+
+    
+    retentionTimer = [[NSTimer scheduledTimerWithTimeInterval:0.5
+                                                       target:self
+                                                     selector:@selector(sendIndicationMessage)
+                                                     userInfo:nil
+                                                      repeats:YES] retain];
+}
+
+- (void)sendIndicationMessage{
+   
+    // network byte order.
+    transactionIdIndicationMessage= [[self createNRundomBytes:12] retain]; //  The transaction ID used to uniquely identify STUN transactions.
+    
+    // create final request
+    NSMutableData *stunIndicationMessage = [NSMutableData data];
+    [stunIndicationMessage appendData:msgTypeIndicationMessage];
+    [stunIndicationMessage appendData:bodyLength];
+    [stunIndicationMessage appendData:magicCookie];
+    [stunIndicationMessage appendData:transactionIdIndicationMessage];
+    
+    STUNLog(@"STUN Indication Message=%@", stunIndicationMessage);
+    
+    // Send Indication message
+    //
+    [udpSocket sendData:stunIndicationMessage toHost:STUNServer port:STUNPort withTimeout:-1 tag:1003];
+}
+
+- (void)stopSendIndicationMessage{
+    [retentionTimer invalidate];
+    [retentionTimer release];
+    retentionTimer = nil;
+    
+    [msgTypeIndicationMessage release];
+    msgTypeIndicationMessage = nil;
+    [transactionIdIndicationMessage release];
+    transactionIdIndicationMessage = nil;
 }
 
 
@@ -102,6 +158,21 @@
     return [NSString stringWithFormat:@"%d", port];
 }
 
+/**
+ * Parse int value from hex data
+ **/
+- (unsigned)parseIntFromHexData:(NSData *)data{
+    
+    NSString *dataDescription = [data description];
+    NSString *dataAsString = [dataDescription substringWithRange:NSMakeRange(1, [dataDescription length]-2)];
+    
+    unsigned intData = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:dataAsString];
+    [scanner scanHexInt:&intData];
+    
+    return intData;
+}
+
 
 #pragma mark -
 #pragma mark GCDAsyncUdpSocketDelegate
@@ -125,12 +196,14 @@ withFilterContext:(id)filterContext{
     //
     NSMutableData *magicCookieAndTransactionID = [NSMutableData data];
     [magicCookieAndTransactionID appendData:magicCookie];
-    [magicCookieAndTransactionID appendData:transactionId];
+    [magicCookieAndTransactionID appendData:transactionIdBindingRequest];
     if(![[data subdataWithRange:NSMakeRange(4, 16)] isEqualToData:magicCookieAndTransactionID]){
         STUNLog(@"STUN magic cookie and/or transaction id check failed. Please repeat request");
         return;
     }
     //
+    // Success Response: 0x0101
+    // Error Response:   0x0111
     //
     if(![[data subdataWithRange:NSMakeRange(0, 2)] isEqualToData:[NSData dataWithBytes:"\x01\x01" length:2]]){
         STUNLog(@"STUN a non-success STUN response received. Please repeat request");
@@ -204,11 +277,7 @@ withFilterContext:(id)filterContext{
         STUNLog(@"STUN No MAPPED-ADDRESS found.");
     }
     
-    if(xmaddr != nil){
-        // Not implemented yet
-        // You can self implement this feature using original documenatation http://tools.ietf.org/html/rfc5389#page-33
-        
-    }else{
+    if(xmaddr == nil){
         STUNLog(@"STUN No XOR-MAPPED-ADDRESS found.");
     }
     
@@ -219,9 +288,22 @@ withFilterContext:(id)filterContext{
     if(maddr != nil){
         ip = [self extractIP:maddr];
         port = [self extractPort:mport];
-    }else{
-        STUNLog(@"STUN query failed.");
-        return;
+    }
+    if(xmaddr != nil){
+
+        // XOR address
+        int xmaddrInt = [self parseIntFromHexData:xmaddr];
+        int magicCookieInt = [self parseIntFromHexData:magicCookie];
+        //
+        int32_t xoredAddr = CFSwapInt32HostToBig(magicCookieInt ^ xmaddrInt);
+        ip = [self extractIP:[NSData dataWithBytes:&xoredAddr length:4]];
+        
+        // XOR port
+        int xmportInt = [self parseIntFromHexData:xmport];
+        int magicCookieHighBytesInt = [self parseIntFromHexData:[magicCookie subdataWithRange:NSMakeRange(0, 2)]];
+        //
+        int32_t xoredPort = CFSwapInt16HostToBig(magicCookieHighBytesInt ^ xmportInt);
+        port = [self extractPort:[NSData dataWithBytes:&xoredPort length:2]];
     }
     
     NSNumber *isNATSymmetric = [NSNumber numberWithBool:[sock localPort] != [port intValue]];

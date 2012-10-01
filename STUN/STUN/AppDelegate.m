@@ -61,6 +61,12 @@
 -(void)didReceivePublicIPandPort:(NSDictionary *) data{
     NSLog(@"Public IP=%@, public Port=%@, NAT is Symmetric: %@", [data objectForKey:publicIPKey],
           [data objectForKey:publicPortKey], [data objectForKey:isNATTypeSymmetric]);
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"result" message:[data description] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+    [alert show];
+    [alert release];
+    
+    [stunClient startSendIndicationMessage];
 }
 
 @end
