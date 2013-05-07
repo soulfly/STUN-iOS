@@ -13,6 +13,14 @@
 
 @implementation STUNClient
 
+- (id)init{
+    self = [super init];
+    
+    STUNLog(@"STUN server: %@", STUNServer);
+    
+    return self;
+}
+
 - (void)dealloc{
     delegate = nil;
     udpSocket = nil;
@@ -312,19 +320,19 @@ withFilterContext:(id)filterContext{
         STUNLog(@"STUN No XOR-MAPPED-ADDRESS found.");
     }
     
-    NSNumber *isNATSymmetric = [NSNumber numberWithBool:[sock localPort] != [port intValue]];
+    NSNumber *isNatPortRandom = [NSNumber numberWithBool:[sock localPort] != [port intValue]];
     
     STUNLog(@"\n");
     STUNLog(@"=======STUN========");
     STUNLog(@"STUN IP: %@", ip);
     STUNLog(@"STUN Port: %@", port);
-    STUNLog(@"STUN NAT type: %@", [sock localPort] == [port intValue] ? @"Not Symmetric" : @"Symmetric");
+    STUNLog(@"STUN Port randomization: %d", [sock localPort] == [port intValue]);
     STUNLog(@"===================");
     STUNLog(@"\n");
     
     // notify delegate
     if([delegate respondsToSelector:@selector(didReceivePublicIPandPort:)]){
-        NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:ip, publicIPKey, port, publicPortKey, isNATSymmetric, isNATTypeSymmetric, nil];
+        NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:ip, publicIPKey, port, publicPortKey, isNatPortRandom, isPortRandomization, nil];
         [udpSocket setDelegate:delegate];
         [delegate didReceivePublicIPandPort:result];
     }

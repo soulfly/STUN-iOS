@@ -27,11 +27,11 @@
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define STUNServer @"qbchat01.quickblox.com"
+#define STUNServer @"stunserver.org"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
-#define isNATTypeSymmetric @"isNATTypeSymmetric"
+#define isPortRandomization @"isPortRandomization"
 
 #define log 1
 #define STUNLog(...) if (log) NSLog(__VA_ARGS__)
