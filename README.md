@@ -37,3 +37,7 @@ Original specification: [http://tools.ietf.org/html/rfc5389](http://tools.ietf.o
         [stunClient startSendIndicationMessage];
 
 7. Injoit!
+
+<h2>License</h2>
+It's compeletely free, use this lib without any problems.<br>
+Just would be great if you add info somewhere in your app about author: "STUN-iOS: Igor form QuickBlox", but it's not a requirement. 
