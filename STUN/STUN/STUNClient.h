@@ -27,7 +27,8 @@
 // some of them send the trasport address as both MAPPED-ADDRESS and XOR-MAPPED-ADDRESS -
 // and others send only MAPPED-ADDRESS
 // All list - http://www.tek-tips.com/faqs.cfm?fid=7542
-#define STUNServer @"stunserver.org"
+// and also https://gist.github.com/zziuni/3741933
+#define STUNServer @"stun.ekiga.net"
 
 #define publicIPKey @"publicIPKey"
 #define publicPortKey @"publicPortKey"
